@@ -1,47 +1,49 @@
+import 'package:advent/door_content.dart';
+import 'package:advent/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class AdventDoor extends StatefulWidget {
   final int doorNumber;
-  final String doorIcon;
+  final User? user;
+  final DoorContent? doorContent;
   final bool isOpenable;
   final bool isOpened;
   final VoidCallback onTap;
-  final VoidCallback onIconTap;
 
   const AdventDoor({
     super.key,
     required this.doorNumber,
-    required this.doorIcon,
+    required this.user,
+    required this.doorContent,
     required this.isOpenable,
     required this.isOpened,
     required this.onTap,
-    required this.onIconTap,
   });
 
   @override
   State<AdventDoor> createState() => _AdventDoorState();
 }
 
-class _AdventDoorState extends State<AdventDoor>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  late AnimationController _shakeController;
+class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
+  late AnimationController _openCloseAnimationController;
+  late Animation<double> _openCloseAnimation;
+  late AnimationController _shakeAnimationController;
   late Animation<double> _shakeAnimation;
+  late Animation<double> _highlightAnimation;
 
   Color get doorColor => (widget.isOpenable)
       ? Color.fromARGB(255, 235, 61, 61)
-      : Color.fromARGB(255, 182, 74, 74);
+      : Color.fromARGB(255, 235, 61, 61);
   Color get doorBorderColor => (widget.isOpenable)
       ? const Color.fromARGB(255, 131, 27, 27)
-      : const Color.fromARGB(255, 99, 30, 30);
+      : const Color.fromARGB(255, 131, 27, 27);
   Color get doorOrnamentColor => (widget.isOpenable)
       ? const Color.fromARGB(255, 211, 51, 51)
-      : const Color.fromARGB(255, 170, 62, 62);
+      : const Color.fromARGB(255, 211, 51, 51);
   Color get doorTextColor => (widget.isOpenable)
       ? const Color.fromARGB(255, 255, 255, 255)
-      : const Color.fromARGB(255, 255, 178, 155);
+      : const Color.fromARGB(255, 255, 255, 255);
   Color get doorKnobColor => (widget.isOpenable)
       ? const Color.fromARGB(255, 255, 195, 91)
       : const Color.fromARGB(255, 238, 151, 0);
@@ -65,30 +67,44 @@ class _AdventDoorState extends State<AdventDoor>
 
   static const double openDegree = 96;
 
-  double oppennedDegree() => _animation.value * openDegree;
+  double oppennedDegree() => _openCloseAnimation.value * openDegree;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+
+    _openCloseAnimationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1, // degrees to open
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _shakeController = AnimationController(
+    _shakeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
+
+    _openCloseAnimation =
+        Tween<double>(
+          begin: 0,
+          end: 1, // degrees to open
+        ).animate(
+          CurvedAnimation(
+            parent: _openCloseAnimationController,
+            curve: Curves.easeInOut,
+          ),
+        );
+
     _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
+      CurvedAnimation(
+        parent: _shakeAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+    _highlightAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _shakeAnimationController, curve: Curves.easeOut),
     );
 
     if (widget.isOpened) {
-      _controller.value = 1.0;
+      _openCloseAnimationController.value = 1.0;
     }
   }
 
@@ -97,17 +113,17 @@ class _AdventDoorState extends State<AdventDoor>
     super.didUpdateWidget(oldWidget);
     if (widget.isOpened != oldWidget.isOpened) {
       if (widget.isOpened) {
-        _controller.forward();
+        _openCloseAnimationController.forward();
       } else {
-        _controller.reverse();
+        _openCloseAnimationController.reverse();
       }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _shakeController.dispose();
+    _openCloseAnimationController.dispose();
+    _shakeAnimationController.dispose();
     super.dispose();
   }
 
@@ -115,8 +131,51 @@ class _AdventDoorState extends State<AdventDoor>
     if (widget.isOpenable) {
       widget.onTap();
     } else {
-      _shakeController.forward(from: 0);
+      _shakeAnimationController.forward(from: 0);
+
+      User? user = widget.user;
+      if (user == null) {
+        _showDoorDialog(user, null);
+      }
     }
+  }
+
+  List<String> noContentIcons = [
+    '😕',
+    '🤔',
+    '🫤',
+    '😐',
+    '😑',
+    '🤐',
+    '😔',
+    '😞',
+    '😞',
+    '☹️',
+    '😒',
+    '🙄',
+    '😬',
+    '😳',
+  ];
+
+  void _showDoorDialog(User? user, DoorContent? content) {
+    DoorContent? content = widget.doorContent;
+
+    String? errorText = user == null
+        ? 'Nincs jelszó, nincs csoki!'
+        : content == null
+        ? 'Hmmm...\nValami nincs rendben!\nErről szólj Csaninak!'
+        : null;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        alignment: Alignment.center,
+        title: errorText == null
+            ? null
+            : Text(errorText, textAlign: TextAlign.center),
+        content: content?.child,
+      ),
+    );
   }
 
   @override
@@ -124,26 +183,32 @@ class _AdventDoorState extends State<AdventDoor>
     return AnimatedBuilder(
       animation: _shakeAnimation,
       builder: (context, child) {
-        final shake = math.sin(_shakeAnimation.value * math.pi * 3) * 5;
-        return Transform.translate(
-          offset: Offset(shake, 0),
-          child: SizedBox(
-            width: 80,
-            height: 80,
-            child: GestureDetector(
-              onTap: _handleTap,
-              child: AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  return Stack(
-                    children: [
-                      // Background (what's behind the door)
-                      _buildInnerContent(),
-                      // The door itself
-                      _buildDoor(),
-                    ],
-                  );
-                },
+        final shake = math.sin(_shakeAnimation.value * math.pi * 4) * 0.05;
+        final scaleExtra = math.sin(
+          math.pow(_highlightAnimation.value, 0.5) * math.pi,
+        );
+        return Transform.scale(
+          scale: 1 + (scaleExtra * 0.05),
+          child: Transform.rotate(
+            angle: shake,
+            child: SizedBox(
+              width: 80,
+              height: 80,
+              child: GestureDetector(
+                onTap: _handleTap,
+                child: AnimatedBuilder(
+                  animation: _openCloseAnimation,
+                  builder: (context, child) {
+                    return Stack(
+                      children: [
+                        // Background (what's behind the door)
+                        _buildInnerContent(),
+                        // The door itself
+                        _buildDoor(scaleExtra),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -170,10 +235,10 @@ class _AdventDoorState extends State<AdventDoor>
             height: 80,
             width: 80,
             child: ElevatedButton(
-              onPressed: widget.onIconTap,
+              onPressed: () => _showDoorDialog(widget.user, widget.doorContent),
               style: ElevatedButton.styleFrom(
-                backgroundColor:backgroundButtonColor,
-                overlayColor:  const Color.fromARGB(255, 221, 185, 161),
+                backgroundColor: backgroundButtonColor,
+                overlayColor: const Color.fromARGB(255, 221, 185, 161),
                 shadowColor: Colors.black,
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
@@ -183,7 +248,8 @@ class _AdventDoorState extends State<AdventDoor>
               ),
               child: Center(
                 child: Text(
-                  widget.doorIcon,
+                  widget.doorContent?.icon ??
+                      noContentIcons[widget.doorNumber % noContentIcons.length],
                   style: const TextStyle(fontSize: 42),
                   textAlign: TextAlign.center,
                 ),
@@ -195,11 +261,13 @@ class _AdventDoorState extends State<AdventDoor>
     );
   }
 
-  Widget _buildDoor() => Transform(
+  Widget _buildDoor(double scaleExtra) => Transform(
     alignment: Alignment.centerLeft,
     transform: Matrix4.identity()
       ..setEntry(3, 2, 0.001)
-      ..rotateY(_animation.value * 3.1415926535897932 * (openDegree / 180)),
+      ..rotateY(
+        _openCloseAnimation.value * 3.1415926535897932 * (openDegree / 180),
+      ),
     child: Container(
       decoration: BoxDecoration(
         color: doorColor,
@@ -234,21 +302,27 @@ class _AdventDoorState extends State<AdventDoor>
                 borderRadius: BorderRadius.circular(oranment1Corner),
               ),
             ),
+            // Glow effect
+            if (widget.isOpenable) _buildGlow(),
+
             // Door number
-            Center(
-              child: Text(
-                '${widget.doorNumber}',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: doorTextColor,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withAlpha(50),
-                      offset: const Offset(1, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
+            Transform.scale(
+              scale: 1 + (scaleExtra * 0.5),
+              child: Center(
+                child: Text(
+                  '${widget.doorNumber}',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: doorTextColor,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withAlpha(50),
+                        offset: const Offset(1, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -351,4 +425,8 @@ class _AdventDoorState extends State<AdventDoor>
       ),
     ),
   );
+
+  Widget _buildGlow() {
+    return SizedBox.shrink();
+  }
 }

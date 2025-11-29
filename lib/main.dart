@@ -1,6 +1,25 @@
 import 'package:advent/advent_door.dart';
+import 'package:advent/door_content.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum User { dorkaMate, mariMatyi, kataBalazs, zsuzsiKicsim }
+
+extension UserExtension on User {
+  String get displayName => switch (this) {
+    User.dorkaMate => 'Szia, Dorka és Máté!',
+    User.mariMatyi => 'Szia, Mariann és Matyi!',
+    User.kataBalazs => 'Szia, Kata és Balázs!',
+    User.zsuzsiKicsim => 'Szia, kicsim! ❤️',
+  };
+
+  String get keyWord => switch (this) {
+    User.dorkaMate => 'matador',
+    User.mariMatyi => 'm&m\'s',
+    User.kataBalazs => 'kabala',
+    User.zsuzsiKicsim => 'okézsoké',
+  };
+}
 
 void main() {
   runApp(const MyApp());
@@ -52,63 +71,11 @@ class AdventCalendarPage extends StatefulWidget {
 }
 
 class _AdventCalendarPageState extends State<AdventCalendarPage> {
-  // Map of door numbers to their content
-  final Map<int, String> doorContents = {
-    1: "🎄 Welcome to the Advent Calendar! Let the holiday magic begin!",
-    2: "⭐ May your days be merry and bright!",
-    3: "🎁 Three wise men traveled from afar...",
-    4: "❄️ Let it snow, let it snow, let it snow!",
-    5: "🕯️ Light a candle and make a wish.",
-    6: "🎅 Santa is checking his list twice!",
-    7: "🔔 Jingle bells, jingle all the way!",
-    8: "🎵 Eight days until halfway through December!",
-    9: "⛄ Do you want to build a snowman?",
-    10: "🌟 Ten little elves working in the workshop.",
-    11: "🦌 Rudolph with your nose so bright!",
-    12: "🎀 Twelve drummers drumming...",
-    13: "🍪 Time for milk and cookies!",
-    14: "🧦 Don't forget to hang your stockings!",
-    15: "🎶 Silent night, holy night.",
-    16: "🏠 Home is where the heart is this holiday season.",
-    17: "💝 Spread love and kindness everywhere you go.",
-    18: "✨ Magic is in the air!",
-    19: "🎊 The countdown is getting exciting!",
-    20: "🌲 Only a few more days until Christmas!",
-    21: "🎺 Three days to go! Can you feel the excitement?",
-    22: "🎪 Two more sleeps until Christmas!",
-    23: "🌙 Christmas Eve is tomorrow!",
-    24: "🎉 Merry Christmas Eve! Santa comes tonight!",
-  };
-
-  final Map<int, String> doorIcon = {
-    1: "🕯️",
-    2: "🎉",
-    3: "🧦",
-
-    4: "❄️",
-    5: "⭐",
-    6: "🎅",
-    7: "🔔",
-    8: "🎵",
-    9: "⛄",
-    10: "🌟",
-    11: "🦌",
-    12: "🎀",
-    13: "🍪",
-    14: "🎁",
-    15: "🎶",
-    16: "🏠",
-    17: "💝",
-    18: "🌲",
-    19: "🎊",
-    20: "✨",
-    21: "🎺",
-    22: "🎪",
-    23: "🌙",
-    24: "🎄",
-  };
-
   Set<int> openedDoors = {};
+
+  // User management
+  User? currentUser;
+  final TextEditingController _userInputController = TextEditingController();
 
   // Deterministic shuffle - always produces the same order
   late final List<int> shuffledDoors = _generateShuffledDoors();
@@ -116,13 +83,81 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
   @override
   void initState() {
     super.initState();
-    _loadOpenedDoors();
+    _loadCurrentUser();
+    _userInputController.addListener(_onUserInputChanged);
   }
+
+  @override
+  void dispose() {
+    _userInputController.dispose();
+    super.dispose();
+  }
+
+  User? _identifyUser(String input) {
+    if (input.isEmpty) return null;
+
+    User? foundUser;
+    for (final user in User.values) {
+      if (input == user.keyWord) {
+        foundUser = user;
+      }
+    }
+    return foundUser;
+  }
+
+  void _onUserInputChanged() {
+    final identifiedUser = _identifyUser(_userInputController.text);
+    if (identifiedUser != currentUser) {
+      setState(() {
+        currentUser = identifiedUser;
+        openedDoors = {};
+      });
+      _saveCurrentUser();
+      _loadOpenedDoors();
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedUserIndex = prefs.getInt('current_user_index');
+      if (savedUserIndex != null && savedUserIndex < User.values.length) {
+        final savedUser = User.values[savedUserIndex];
+        if (mounted) {
+          setState(() {
+            currentUser = savedUser;
+            _userInputController.text = savedUser.keyWord;
+          });
+          _loadOpenedDoors();
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load current user: $e');
+    }
+  }
+
+  Future<void> _saveCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (currentUser != null) {
+        await prefs.setInt('current_user_index', currentUser!.index);
+      } else {
+        await prefs.remove('current_user_index');
+      }
+    } catch (e) {
+      debugPrint('Failed to save current user: $e');
+    }
+  }
+
+  String _getStorageKey(String key) => '${currentUser!.name}_$key';
 
   Future<void> _loadOpenedDoors() async {
     try {
+      if (currentUser == null) return;
+
       final prefs = await SharedPreferences.getInstance();
-      final openedDoorsList = prefs.getStringList('opened_doors') ?? [];
+      final storageKey = _getStorageKey('opened_doors');
+      final openedDoorsList = prefs.getStringList(storageKey) ?? [];
       if (mounted) {
         setState(() {
           openedDoors = openedDoorsList.map((e) => int.parse(e)).toSet();
@@ -136,9 +171,11 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
 
   Future<void> _saveOpenedDoors() async {
     try {
+      if (currentUser == null) return;
       final prefs = await SharedPreferences.getInstance();
+      final storageKey = _getStorageKey('opened_doors');
       await prefs.setStringList(
-        'opened_doors',
+        storageKey,
         openedDoors.map((e) => e.toString()).toList(),
       );
     } catch (e) {
@@ -173,6 +210,10 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
   }
 
   bool canOpenDoor(int doorNumber) {
+    // No user = no doors can be opened
+    if (currentUser == null) {
+      return false;
+    }
     return doorNumber <= getCurrentDay();
   }
 
@@ -187,25 +228,6 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
       });
       _saveOpenedDoors();
     }
-  }
-
-  void showDoorContent(int doorNumber) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Door $doorNumber'),
-        content: Text(
-          doorContents[doorNumber] ?? "Holiday cheer!",
-          style: const TextStyle(fontSize: 18),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -235,15 +257,69 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                     return AdventDoor(
                       key: ValueKey('door_$doorNumber'),
                       doorNumber: doorNumber,
-                      doorIcon: doorIcon[doorNumber] ?? '',
+                      user: currentUser,
+                      doorContent:
+                          DoorContentManager.content[(doorNumber, currentUser)],
                       isOpenable: isOpenable,
                       isOpened: isOpened,
                       onTap: () => toggleDoor(doorNumber),
-                      onIconTap: () => showDoorContent(doorNumber),
                     );
                   },
                 ),
               ),
+            ),
+          ),
+          // User identification input at the bottom
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _userInputController,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: 'Jelszó?',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                if (currentUser != null) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          currentUser!.displayName,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
