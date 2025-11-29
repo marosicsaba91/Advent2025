@@ -84,7 +84,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     1: "🕯️",
     2: "🎉",
     3: "🧦",
-    
+
     4: "❄️",
     5: "⭐",
     6: "🎅",
@@ -176,30 +176,36 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     return doorNumber <= getCurrentDay();
   }
 
-  void openDoor(int doorNumber) {
+  void toggleDoor(int doorNumber) {
     if (canOpenDoor(doorNumber)) {
       setState(() {
-        openedDoors.add(doorNumber);
+        if (openedDoors.contains(doorNumber)) {
+          openedDoors.remove(doorNumber);
+        } else {
+          openedDoors.add(doorNumber);
+        }
       });
       _saveOpenedDoors();
-
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Door $doorNumber'),
-          content: Text(
-            doorContents[doorNumber] ?? "Holiday cheer!",
-            style: const TextStyle(fontSize: 18),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
     }
+  }
+
+  void showDoorContent(int doorNumber) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Door $doorNumber'),
+        content: Text(
+          doorContents[doorNumber] ?? "Holiday cheer!",
+          style: const TextStyle(fontSize: 18),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -227,11 +233,13 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                     final isOpened = openedDoors.contains(doorNumber);
 
                     return AdventDoor(
+                      key: ValueKey('door_$doorNumber'),
                       doorNumber: doorNumber,
                       doorIcon: doorIcon[doorNumber] ?? '',
                       isOpenable: isOpenable,
                       isOpened: isOpened,
-                      onTap: () => openDoor(doorNumber),
+                      onTap: () => toggleDoor(doorNumber),
+                      onIconTap: () => showDoorContent(doorNumber),
                     );
                   },
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class AdventDoor extends StatefulWidget {
   final int doorNumber;
@@ -6,6 +7,7 @@ class AdventDoor extends StatefulWidget {
   final bool isOpenable;
   final bool isOpened;
   final VoidCallback onTap;
+  final VoidCallback onIconTap;
 
   const AdventDoor({
     super.key,
@@ -14,17 +16,19 @@ class AdventDoor extends StatefulWidget {
     required this.isOpenable,
     required this.isOpened,
     required this.onTap,
+    required this.onIconTap,
   });
-
 
   @override
   State<AdventDoor> createState() => _AdventDoorState();
 }
 
 class _AdventDoorState extends State<AdventDoor>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
 
   Color get doorColor => (widget.isOpenable)
       ? Color.fromARGB(255, 235, 61, 61)
@@ -42,11 +46,14 @@ class _AdventDoorState extends State<AdventDoor>
       ? const Color.fromARGB(255, 255, 195, 91)
       : const Color.fromARGB(255, 238, 151, 0);
 
-  Color get backgroundDarkColor => const Color.fromARGB(255, 39, 30, 29);
-  Color get backgroundLightColor => const Color.fromARGB(255, 99, 78, 73);
+  Color get backgroundDarkColor => const Color.fromARGB(255, 51, 40, 39);
+  Color get backgroundLightColor => const Color.fromARGB(255, 97, 74, 68);
+  Color get backgroundButtonColor => const Color.fromARGB(255, 77, 60, 56);
 
   static const double doorBorderWidth = 2;
   static const double doorCorner = 14;
+  static const double innerContentMargin = 10;
+  static const double innerContentCorner = 6;
 
   static const double oranmentWidth = 4;
 
@@ -60,7 +67,6 @@ class _AdventDoorState extends State<AdventDoor>
 
   double oppennedDegree() => _animation.value * openDegree;
 
-
   @override
   void initState() {
     super.initState();
@@ -73,6 +79,14 @@ class _AdventDoorState extends State<AdventDoor>
       end: 1, // degrees to open
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
+    );
+
     if (widget.isOpened) {
       _controller.value = 1.0;
     }
@@ -81,40 +95,60 @@ class _AdventDoorState extends State<AdventDoor>
   @override
   void didUpdateWidget(AdventDoor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isOpened && !oldWidget.isOpened) {
-      _controller.forward();
-    } else if (!widget.isOpened && oldWidget.isOpened) {
-      _controller.reverse();
+    if (widget.isOpened != oldWidget.isOpened) {
+      if (widget.isOpened) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
     }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _shakeController.dispose();
     super.dispose();
+  }
+
+  void _handleTap() {
+    if (widget.isOpenable) {
+      widget.onTap();
+    } else {
+      _shakeController.forward(from: 0);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: GestureDetector(
-        onTap: widget.isOpenable ? widget.onTap : null,
-        child: AnimatedBuilder(
-          animation: _animation,
-          builder: (context, child) {
-            return Stack(
-              children: [
-                // Background (what's behind the door)
-                _buildInnerContent(),
-                // The door itself
-                _buildDoor(),
-              ],
-            );
-          },
-        ),
-      ),
+    return AnimatedBuilder(
+      animation: _shakeAnimation,
+      builder: (context, child) {
+        final shake = math.sin(_shakeAnimation.value * math.pi * 3) * 5;
+        return Transform.translate(
+          offset: Offset(shake, 0),
+          child: SizedBox(
+            width: 80,
+            height: 80,
+            child: GestureDetector(
+              onTap: _handleTap,
+              child: AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return Stack(
+                    children: [
+                      // Background (what's behind the door)
+                      _buildInnerContent(),
+                      // The door itself
+                      _buildDoor(),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -126,18 +160,40 @@ class _AdventDoorState extends State<AdventDoor>
         border: Border.all(color: backgroundDarkColor, width: doorBorderWidth),
       ),
       child: Container(
-        margin: const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(innerContentMargin),
         decoration: BoxDecoration(
           color: backgroundDarkColor,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(innerContentCorner),
         ),
         child: Center(
-          child: Text(widget.doorIcon, style: const TextStyle(fontSize: 36)),
+          child: SizedBox(
+            height: 80,
+            width: 80,
+            child: ElevatedButton(
+              onPressed: widget.onIconTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:backgroundButtonColor,
+                overlayColor:  const Color.fromARGB(255, 221, 185, 161),
+                shadowColor: Colors.black,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 8,
+              ),
+              child: Center(
+                child: Text(
+                  widget.doorIcon,
+                  style: const TextStyle(fontSize: 42),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
-
 
   Widget _buildDoor() => Transform(
     alignment: Alignment.centerLeft,
@@ -295,5 +351,4 @@ class _AdventDoorState extends State<AdventDoor>
       ),
     ),
   );
-
 }
