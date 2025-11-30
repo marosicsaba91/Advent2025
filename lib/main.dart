@@ -52,13 +52,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      themeMode: ThemeMode.light,
       home: const AdventCalendarPage(),
     );
   }
@@ -237,18 +231,22 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
       body: Column(
         children: [
           Expanded(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 660),
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 26,
-                    mainAxisSpacing: 26,
-                    childAspectRatio: 1,
-                  ),
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: SizedBox(
+                width: 700,
+                height: 1200,
+                child: Center(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 26,
+                      mainAxisSpacing: 26,
+                      childAspectRatio: 1,
+                    ),
                   itemCount: 24,
                   itemBuilder: (context, index) {
                     final doorNumber = shuffledDoors[index];
@@ -270,6 +268,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                       onTap: () => toggleDoor(doorNumber),
                     );
                   },
+                ),
                 ),
               ),
             ),
@@ -314,9 +313,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                         Text(
                           currentUser!.displayName,
                           style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
+                            color: Color.fromARGB(255, 151, 62, 62),
                             fontWeight: FontWeight.bold,
                           ),
                         ),

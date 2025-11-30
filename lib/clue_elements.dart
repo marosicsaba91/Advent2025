@@ -55,27 +55,13 @@ class ClueImage extends StatelessWidget {
   }
 }
 
-class ClueBell extends StatelessWidget {
-  const ClueBell(this.imagePath,this.soundPath, {super.key});
 
-  final String imagePath;
-  final String soundPath; 
-
-  @override
-  Widget build(BuildContext context) {
-    String imagePathLocal = "assets/$imagePath";
-    //String soundPathLocal = "assets/$soundPath";
-    Widget image = SizedBox(width: 400, height: 400, child: Image.asset(imagePathLocal));
-    // TODO
-    return image;
-  }
-}
 
 class ClueTimeLock extends StatelessWidget {
   const ClueTimeLock(this.imagePath, this.cuncoverableText, this.hour, this.minute, {super.key});
 
   final String imagePath;
-  final String cuncoverableText; 
+  final String cuncoverableText;
   final int hour;
   final int minute;
 

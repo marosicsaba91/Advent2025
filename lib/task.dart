@@ -1,3 +1,4 @@
+import 'package:advent/clue_bell.dart';
 import 'package:advent/clue_elements.dart';
 import 'package:flutter/material.dart';
 
@@ -54,13 +55,13 @@ class TaskManager {
     "🔔" => Task(
       icon: taskId,
       clues: [
-        ClueBell("Bell6.png", "Bell6-F#.mp3"),
-        ClueBell("Bell4.png", "Bell4-E.mp3"),
-        ClueBell("Bell9.png", "Bell9-D-.mp3"),
-        ClueBell("Bell7.png", "Bell7-B.mp3"),
-        ClueBell("Bell8.png", "Bell8-G.mp3"),
-        ClueBell("Bell3.png", "Bell3-D.mp3"),
-        ClueBell("Bell5.png", "Bell5-A.mp3"),
+        ClueBell("Bell6.png", "Bell 6-F#.mp3"),
+        ClueBell("Bell4.png", "Bell 4-E.mp3"),
+        ClueBell("Bell9.png", "Bell 9-D-.mp3"),
+        ClueBell("Bell7.png", "Bell 7-B.mp3"),
+        ClueBell("Bell8.png", "Bell 8-G.mp3"),
+        ClueBell("Bell3.png", "Bell 3-D.mp3"),
+        ClueBell("Bell5.png", "Bell 5-A.mp3"),
         ClueText("5 - 6 - 5 - 6 - 3 - 5 - 7 - 3 - 8 - 6 - 5 - 9 - 6 - 4"),
         ClueText("Ki a szerző? Ki lehetne más? Kicsit úgy fest, mint a Mikulás."),
       ],
