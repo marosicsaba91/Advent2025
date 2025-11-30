@@ -239,14 +239,14 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
+                constraints: const BoxConstraints(maxWidth: 660),
                 child: GridView.builder(
                   padding: const EdgeInsets.all(16),
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5,
-                    crossAxisSpacing: 34,
-                    mainAxisSpacing: 34,
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 26,
+                    mainAxisSpacing: 26,
                     childAspectRatio: 1,
                   ),
                   itemCount: 24,
