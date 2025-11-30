@@ -1,5 +1,6 @@
 import 'package:advent/advent_door.dart';
 import 'package:advent/door_content.dart';
+import 'package:advent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -93,8 +94,14 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     super.dispose();
   }
 
-  User? _identifyUser(String input) {
-    if (input.isEmpty) return null;
+  (User?, bool) _identifyUser(String input) {
+    if (input.isEmpty) return (null, false);
+
+    bool isDevMode = false;
+    if (input.endsWith('*dev')) {
+      isDevMode = true;
+      input = input.substring(0, input.length - 4).trim();
+    }
 
     User? foundUser;
     for (final user in User.values) {
@@ -102,14 +109,18 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
         foundUser = user;
       }
     }
-    return foundUser;
+    return (foundUser, isDevMode);
   }
 
   void _onUserInputChanged() {
-    final identifiedUser = _identifyUser(_userInputController.text);
-    if (identifiedUser != currentUser) {
+    (User?, bool) identifiedUser = _identifyUser(_userInputController.text);
+    User? newUser = identifiedUser.$1;
+    bool newIsDevMode = identifiedUser.$2;
+
+    if (newUser != currentUser || newIsDevMode != Util.isDevMode) {
       setState(() {
-        currentUser = identifiedUser;
+        currentUser = newUser;
+        Util.isDevMode = newIsDevMode;
         openedDoors = {};
       });
       _saveCurrentUser();
@@ -197,30 +208,18 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     return doors;
   }
 
-  // Get current December day (you can modify this for testing)
-  int getCurrentDay() {
-    final now = DateTime.now();
-    if (now.year > 2025) {
-      return 24;
-    }
-    if (now.year < 2025 || now.month < 11) {
-      return 0;
-    }
-    return now.day - 10;
-  }
-
-  bool canOpenDoor(int doorNumber) {
-    // No user = no doors can be opened
-    if (currentUser == null) {
+  static bool canDoorBeOpenDoor(User? user, int doorNumber, int currentDay) {
+    if (user == null) {
       return false;
     }
-    return doorNumber <= getCurrentDay();
+    return doorNumber <= currentDay;
   }
 
   void toggleDoor(int doorNumber) {
-    if (canOpenDoor(doorNumber)) {
+    bool isOpen = openedDoors.contains(doorNumber);
+    if (isOpen || canDoorBeOpenDoor(currentUser, doorNumber, Util.getCurrentDayOfDec2025())) {
       setState(() {
-        if (openedDoors.contains(doorNumber)) {
+        if (isOpen) {
           openedDoors.remove(doorNumber);
         } else {
           openedDoors.add(doorNumber);
@@ -228,10 +227,12 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
       });
       _saveOpenedDoors();
     }
-  }
+  }  
 
   @override
   Widget build(BuildContext context) {
+    int currentDay = Util.getCurrentDayOfDec2025();
+
     return Scaffold(
       body: Column(
         children: [
@@ -251,15 +252,19 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                   itemCount: 24,
                   itemBuilder: (context, index) {
                     final doorNumber = shuffledDoors[index];
-                    final isOpenable = canOpenDoor(doorNumber);
+                    final doorContent = DoorContentManager.getContent(doorNumber, currentUser);
+                    final isOpenable = canDoorBeOpenDoor(
+                      currentUser,
+                      doorNumber,
+                      currentDay,
+                    );
                     final isOpened = openedDoors.contains(doorNumber);
 
                     return AdventDoor(
                       key: ValueKey('door_$doorNumber'),
                       doorNumber: doorNumber,
                       user: currentUser,
-                      doorContent:
-                          DoorContentManager.content[(doorNumber, currentUser)],
+                      doorContent: doorContent, 
                       isOpenable: isOpenable,
                       isOpened: isOpened,
                       onTap: () => toggleDoor(doorNumber),

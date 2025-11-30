@@ -1,5 +1,6 @@
 import 'package:advent/door_content.dart';
 import 'package:advent/main.dart';
+import 'package:advent/util.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -128,14 +129,18 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
   }
 
   void _handleTap() {
-    if (widget.isOpenable) {
-      widget.onTap();
-    } else {
-      _shakeAnimationController.forward(from: 0);
+    widget.onTap();
 
-      User? user = widget.user;
-      if (user == null) {
-        _showDoorDialog(user, null);
+    if (!widget.isOpenable && !widget.isOpened) {
+      {
+        _shakeAnimationController.forward(from: 0);
+
+        User? user = widget.user;
+        int currentDay = Util.getCurrentDayOfDec2025();
+
+        if (user == null || currentDay < widget.doorNumber) {
+          _showDoorDialog(user, null);
+        }
       }
     }
   }
@@ -160,22 +165,51 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
   void _showDoorDialog(User? user, DoorContent? content) {
     DoorContent? content = widget.doorContent;
 
+    int currentDay = Util.getCurrentDayOfDec2025();
+
     String? errorText = user == null
-        ? 'Nincs jelszó, nincs csoki!'
+        ? 'Nincs jelszó, nincs csoki!\n🔑 👉 🍫'
+        : currentDay < widget.doorNumber
+        ? _getWaitText(widget.doorNumber - currentDay)
         : content == null
-        ? 'Hmmm...\nValami nincs rendben!\nErről szólj Csaninak!'
+        ? 'Hmmm... 🤔 Valami nincs rendben!\nEgy nyom itt hiányzik.\nErről szólj Csaninak!'
         : null;
+
+    Widget? errorContent = errorText == null
+        ? null
+        : Text(
+            errorText,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+          );
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         alignment: Alignment.center,
-        title: errorText == null
-            ? null
-            : Text(errorText, textAlign: TextAlign.center),
-        content: content?.child,
+        content: errorContent ?? content?.child,
       ),
     );
+  }
+
+  String _getWaitText(int days) {
+    int lastDigit = days % 10;
+    String numberSuffix = switch (lastDigit) {
+      1 => '-et',
+      2 => '-t',
+      3 => '-at',
+      4 => '-et',
+      5 => '-öt',
+      6 => '-ot',
+      7 => '-et',
+      8 => '-at',
+      9 => '-et',
+      _ => '-t',
+    };
+    // As many sleepy faces as days
+    String sleepyFaces = '😴' * days;
+
+    return 'Még $days$numberSuffix kell aludni!\n$sleepyFaces';
   }
 
   @override
