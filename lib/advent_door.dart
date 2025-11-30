@@ -33,21 +33,15 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
   late Animation<double> _shakeAnimation;
   late Animation<double> _highlightAnimation;
 
-  Color get doorColor => (widget.isOpenable)
-      ? Color.fromARGB(255, 235, 61, 61)
-      : Color.fromARGB(255, 235, 61, 61);
-  Color get doorBorderColor => (widget.isOpenable)
-      ? const Color.fromARGB(255, 131, 27, 27)
-      : const Color.fromARGB(255, 131, 27, 27);
-  Color get doorOrnamentColor => (widget.isOpenable)
-      ? const Color.fromARGB(255, 211, 51, 51)
-      : const Color.fromARGB(255, 211, 51, 51);
-  Color get doorTextColor => (widget.isOpenable)
-      ? const Color.fromARGB(255, 255, 255, 255)
-      : const Color.fromARGB(255, 255, 255, 255);
-  Color get doorKnobColor => (widget.isOpenable)
-      ? const Color.fromARGB(255, 255, 195, 91)
-      : const Color.fromARGB(255, 238, 151, 0);
+  Color get doorColor => (widget.isOpenable) ? Color.fromARGB(255, 235, 61, 61) : Color.fromARGB(255, 235, 61, 61);
+  Color get doorBorderColor =>
+      (widget.isOpenable) ? const Color.fromARGB(255, 131, 27, 27) : const Color.fromARGB(255, 131, 27, 27);
+  Color get doorOrnamentColor =>
+      (widget.isOpenable) ? const Color.fromARGB(255, 211, 51, 51) : const Color.fromARGB(255, 211, 51, 51);
+  Color get doorTextColor =>
+      (widget.isOpenable) ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 255, 255, 255);
+  Color get doorKnobColor =>
+      (widget.isOpenable) ? const Color.fromARGB(255, 255, 195, 91) : const Color.fromARGB(255, 238, 151, 0);
 
   Color get backgroundDarkColor => const Color.fromARGB(255, 51, 40, 39);
   Color get backgroundLightColor => const Color.fromARGB(255, 97, 74, 68);
@@ -74,35 +68,22 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _openCloseAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    _shakeAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
+    _openCloseAnimationController = AnimationController(duration: const Duration(milliseconds: 2000), vsync: this);
+    _shakeAnimationController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
 
-    _openCloseAnimation =
-        Tween<double>(
-          begin: 0,
-          end: 1, // degrees to open
-        ).animate(
-          CurvedAnimation(
-            parent: _openCloseAnimationController,
-            curve: Curves.easeInOut,
-          ),
-        );
+    _openCloseAnimation = Tween<double>(
+      begin: 0,
+      end: 1, // degrees to open
+    ).animate(CurvedAnimation(parent: _openCloseAnimationController, curve: Curves.easeInOut));
 
-    _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _shakeAnimationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _highlightAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _shakeAnimationController, curve: Curves.easeOut),
-    );
+    _shakeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _shakeAnimationController, curve: Curves.easeInOut));
+    _highlightAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _shakeAnimationController, curve: Curves.easeOut));
 
     if (widget.isOpened) {
       _openCloseAnimationController.value = 1.0;
@@ -145,22 +126,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
     }
   }
 
-  List<String> noContentIcons = [
-    '😕',
-    '🤔',
-    '🫤',
-    '😐',
-    '😑',
-    '🤐',
-    '😔',
-    '😞',
-    '😞',
-    '☹️',
-    '😒',
-    '🙄',
-    '😬',
-    '😳',
-  ];
+  List<String> noContentIcons = ['😕', '🤔', '🫤', '😐', '😑', '🤐', '😔', '😞', '😞', '☹️', '😒', '🙄', '😬', '😳'];
 
   void _showDoorDialog(User? user, DoorContent? content) {
     DoorContent? content = widget.doorContent;
@@ -177,18 +143,11 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
 
     Widget? errorContent = errorText == null
         ? null
-        : Text(
-            errorText,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20),
-          );
+        : Text(errorText, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20));
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        alignment: Alignment.center,
-        content: errorContent ?? content?.child,
-      ),
+      builder: (context) => AlertDialog(alignment: Alignment.center, content: errorContent ?? content?.child),
     );
   }
 
@@ -218,9 +177,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
       animation: _shakeAnimation,
       builder: (context, child) {
         final shake = math.sin(_shakeAnimation.value * math.pi * 4) * 0.05;
-        final scaleExtra = math.sin(
-          math.pow(_highlightAnimation.value, 0.5) * math.pi,
-        );
+        final scaleExtra = math.sin(math.pow(_highlightAnimation.value, 0.5) * math.pi);
         return Transform.scale(
           scale: 1 + (scaleExtra * 0.05),
           child: Transform.rotate(
@@ -260,10 +217,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
       ),
       child: Container(
         margin: const EdgeInsets.all(innerContentMargin),
-        decoration: BoxDecoration(
-          color: backgroundDarkColor,
-          borderRadius: BorderRadius.circular(innerContentCorner),
-        ),
+        decoration: BoxDecoration(color: backgroundDarkColor, borderRadius: BorderRadius.circular(innerContentCorner)),
         child: Center(
           child: SizedBox(
             height: 80,
@@ -275,15 +229,12 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                 overlayColor: const Color.fromARGB(255, 221, 185, 161),
                 shadowColor: Colors.black,
                 padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 elevation: 8,
               ),
               child: Center(
                 child: Text(
-                  widget.doorContent?.icon ??
-                      noContentIcons[widget.doorNumber % noContentIcons.length],
+                  widget.doorContent?.icon ?? noContentIcons[widget.doorNumber % noContentIcons.length],
                   style: const TextStyle(fontSize: 42),
                   textAlign: TextAlign.center,
                 ),
@@ -299,9 +250,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
     alignment: Alignment.centerLeft,
     transform: Matrix4.identity()
       ..setEntry(3, 2, 0.001)
-      ..rotateY(
-        _openCloseAnimation.value * 3.1415926535897932 * (openDegree / 180),
-      ),
+      ..rotateY(_openCloseAnimation.value * 3.1415926535897932 * (openDegree / 180)),
     child: Container(
       decoration: BoxDecoration(
         color: doorColor,
@@ -329,10 +278,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
               width: double.infinity,
               height: double.infinity,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: doorOrnamentColor,
-                  width: oranmentWidth,
-                ),
+                border: Border.all(color: doorOrnamentColor, width: oranmentWidth),
                 borderRadius: BorderRadius.circular(oranment1Corner),
               ),
             ),
@@ -349,13 +295,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
                     color: doorTextColor,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withAlpha(50),
-                        offset: const Offset(1, 1),
-                        blurRadius: 2,
-                      ),
-                    ],
+                    shadows: [Shadow(color: Colors.black.withAlpha(50), offset: const Offset(1, 1), blurRadius: 2)],
                   ),
                 ),
               ),
@@ -373,16 +313,31 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                     color: doorKnobColor,
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(100),
-                        blurRadius: 2,
-                        offset: const Offset(1, 1),
-                      ),
+                      BoxShadow(color: Colors.black.withAlpha(100), blurRadius: 2, offset: const Offset(1, 1)),
                     ],
                   ),
                 ),
               ),
             ),
+            // Optional bottom text
+            if (widget.doorContent?.bottomText != null)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 8,
+                child: Center(
+                  child: Text(
+                    widget.doorContent!.bottomText!,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: doorTextColor,
+                      shadows: [Shadow(color: Colors.black.withAlpha(50), offset: const Offset(1, 1), blurRadius: 2)],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
           ],
         ],
       ),
@@ -402,10 +357,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                   child: Container(
                     margin: const EdgeInsets.all(oranment2Margin),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: doorOrnamentColor,
-                        width: oranmentWidth,
-                      ),
+                      border: Border.all(color: doorOrnamentColor, width: oranmentWidth),
                       borderRadius: BorderRadius.circular(oranment2Corner),
                     ),
                   ),
@@ -414,10 +366,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                   child: Container(
                     margin: const EdgeInsets.all(oranment2Margin),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: doorOrnamentColor,
-                        width: oranmentWidth,
-                      ),
+                      border: Border.all(color: doorOrnamentColor, width: oranmentWidth),
                       borderRadius: BorderRadius.circular(oranment2Corner),
                     ),
                   ),
@@ -432,10 +381,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                   child: Container(
                     margin: const EdgeInsets.all(oranment2Margin),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: doorOrnamentColor,
-                        width: oranmentWidth,
-                      ),
+                      border: Border.all(color: doorOrnamentColor, width: oranmentWidth),
                       borderRadius: BorderRadius.circular(oranment2Corner),
                     ),
                   ),
@@ -444,10 +390,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
                   child: Container(
                     margin: const EdgeInsets.all(oranment2Margin),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: doorOrnamentColor,
-                        width: oranmentWidth,
-                      ),
+                      border: Border.all(color: doorOrnamentColor, width: oranmentWidth),
                       borderRadius: BorderRadius.circular(oranment2Corner),
                     ),
                   ),

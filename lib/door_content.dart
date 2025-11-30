@@ -6,28 +6,48 @@ class DoorContent {
   final Widget child;
   final String icon;
   final String? passKey;
-  const DoorContent({required this.icon, required this.child, this.passKey});
+  final List<String>? locks;
+
+  const DoorContent({required this.icon, required this.child, this.passKey, this.locks});
+
+  String? get bottomText {
+    if (locks != null) {
+      return "🔒" * locks!.length;
+    }
+    return null;
+  }
 }
 
 class DoorContentManager {
   static DoorContent? getContent(int day, User? user) {
-
     final taskAndClue = dayUserToTaskClueTable(day, user);
     final String taskID = taskAndClue.$1;
     Task? task = TaskManager.getTask(taskID);
     if (task == null) return null;
 
     final int clueNumber = taskAndClue.$2;
-    if (task.clues.length <= clueNumber-1 || clueNumber <= 0) return null;
+    if (task.clues.length <= clueNumber - 1 || clueNumber <= 0) return null;
 
     bool isLastClue = (clueNumber == task.clues.length);
+    bool isLastTask = (day == 24);
 
-    if (isLastClue) {
+    if (isLastClue && !isLastTask) {
       String passKey = task.keyToSolve;
       return DoorContent(icon: task.icon, child: task.clues[clueNumber - 1], passKey: passKey);
     }
 
-    return DoorContent(icon: task.icon, child: task.clues[clueNumber - 1]);
+    List<String>? locks;
+    if (isLastTask) {
+      locks = switch (user) {
+        User.zsuzsiKicsim => ["TODOTODO", "TODOTODO", "TODOTODO"],
+        User.kataBalazs => ["🌏", "TODOTODO", "TODOTODO"],
+        User.mariMatyi => ["🔔", "TODOTODO", "TODOTODO"],
+        User.dorkaMate => ["TODOTODO", "TODOTODO", "TODOTODO"],
+        null => throw UnimplementedError(),
+      };
+    }
+
+    return DoorContent(icon: task.icon, child: task.clues[clueNumber - 1], locks: locks);
   }
 
   static (String, int) dayUserToTaskClueTable(int day, User? user) => switch ((day, user)) {
@@ -52,13 +72,13 @@ class DoorContentManager {
     (4, User.dorkaMate) => ("🌏", 4),
 
     (5, User.zsuzsiKicsim) => ("🌏", 5),
-    (5, User.kataBalazs) => ("🌏", 6),       // 🔑
+    (5, User.kataBalazs) => ("🌏", 6), // 🔑
     (5, User.mariMatyi) => ("⭐", 5),
     (5, User.dorkaMate) => ("🔔", 7),
 
     (6, User.zsuzsiKicsim) => ("🍞", 3),
     (6, User.kataBalazs) => ("🔔", 8),
-    (6, User.mariMatyi) => ("🔔", 9),        // 🔑
+    (6, User.mariMatyi) => ("🔔", 9), // 🔑
     (6, User.dorkaMate) => ("⭐", 6),
 
     (7, User.zsuzsiKicsim) => ("⭐", 7),
@@ -70,6 +90,11 @@ class DoorContentManager {
     (8, User.kataBalazs) => ("🍞", 5),
     (8, User.mariMatyi) => ("🎅", 3),
     (8, User.dorkaMate) => ("🍞", 6),
+
+    (24, User.zsuzsiKicsim) => ("🎁", 1),
+    (24, User.kataBalazs) => ("🎁", 2),
+    (24, User.mariMatyi) => ("🎁", 3),
+    (24, User.dorkaMate) => ("🎁", 4),
 
     _ => ("🌏", 0),
   };
