@@ -29,6 +29,9 @@ class _ClueBellState extends State<ClueBell> with SingleTickerProviderStateMixin
     super.initState();
     _rotationController = AnimationController(duration: const Duration(seconds: 5), vsync: this);
 
+    // Configure audio player for web
+    _audioPlayer.setReleaseMode(ReleaseMode.stop);
+    
     // Set up completion listener once
     _audioPlayer.onPlayerComplete.listen((_) {
       if (mounted) {
@@ -51,14 +54,23 @@ class _ClueBellState extends State<ClueBell> with SingleTickerProviderStateMixin
   }
 
   Future<void> _playSound() async {
-    if (_isPlaying) {
-      await _audioPlayer.stop();
-      _rotationController.stop();
-    }
+    try {
+      if (_isPlaying) {
+        await _audioPlayer.stop();
+        _rotationController.stop();
+      }
 
-    await _audioPlayer.play(AssetSource(widget.soundPath));
-    setState(() => _isPlaying = true);
-    _rotationController.forward(from: 0);
+      await _audioPlayer.play(AssetSource(widget.soundPath));
+      setState(() => _isPlaying = true);
+      _rotationController.forward(from: 0);
+    } catch (e) {
+      debugPrint('Error playing audio: $e');
+      // Continue with animation even if audio fails
+      if (mounted) {
+        setState(() => _isPlaying = false);
+        _rotationController.forward(from: 0);
+      }
+    }
   }
 
   Future<void> _playSoundDelayed() async {
