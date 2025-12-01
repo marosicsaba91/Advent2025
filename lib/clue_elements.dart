@@ -18,6 +18,24 @@ class ClueColumn extends StatelessWidget {
   );
 }
 
+class ClueRow extends StatelessWidget {
+  const ClueRow(this.items, {super.key});
+
+  final List<Widget> items;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    spacing: 10,
+    children: items,
+  );
+}
+
+
+
+
+
 class ClueText extends StatelessWidget {
   const ClueText(this.message, {super.key});
 

@@ -4,7 +4,7 @@ import 'package:advent/util.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-class AdventDoor extends StatefulWidget {
+class DoorWidget extends StatefulWidget {
   final int doorNumber;
   final User? user;
   final DoorContent? doorContent;
@@ -12,7 +12,7 @@ class AdventDoor extends StatefulWidget {
   final bool isOpened;
   final VoidCallback onTap;
 
-  const AdventDoor({
+  const DoorWidget({
     super.key,
     required this.doorNumber,
     required this.user,
@@ -23,10 +23,10 @@ class AdventDoor extends StatefulWidget {
   });
 
   @override
-  State<AdventDoor> createState() => _AdventDoorState();
+  State<DoorWidget> createState() => _DoorWidgetState();
 }
 
-class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
+class _DoorWidgetState extends State<DoorWidget> with TickerProviderStateMixin {
   late AnimationController _openCloseAnimationController;
   late Animation<double> _openCloseAnimation;
   late AnimationController _shakeAnimationController;
@@ -91,7 +91,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(AdventDoor oldWidget) {
+  void didUpdateWidget(DoorWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isOpened != oldWidget.isOpened) {
       if (widget.isOpened) {
@@ -120,7 +120,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
         int currentDay = Util.getCurrentDayOfDec2025();
 
         if (user == null || currentDay < widget.doorNumber) {
-          _showDoorDialog(user, null);
+          _showDoorDialog(user, widget.doorNumber, widget.doorContent, context);
         }
       }
     }
@@ -128,15 +128,13 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
 
   List<String> noContentIcons = ['😕', '🤔', '🫤', '😐', '😑', '🤐', '😔', '😞', '😞', '☹️', '😒', '🙄', '😬', '😳'];
 
-  void _showDoorDialog(User? user, DoorContent? content) {
-    DoorContent? content = widget.doorContent;
-
+  static void _showDoorDialog(User? user, int doorNumber, DoorContent? content, BuildContext context) {
     int currentDay = Util.getCurrentDayOfDec2025();
 
     String? errorText = user == null
         ? 'Nincs jelszó, nincs csoki!\n🔑 👉 🍫'
-        : currentDay < widget.doorNumber
-        ? _getWaitText(widget.doorNumber - currentDay)
+        : currentDay < doorNumber
+        ? _getWaitText(doorNumber - currentDay)
         : content == null
         ? 'Hmmm... 🤔 Valami nincs rendben!\nEgy nyom itt hiányzik.\nErről szólj Csaninak!'
         : null;
@@ -147,11 +145,11 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(alignment: Alignment.center, content: errorContent ?? content?.child),
+      builder: (context) => AlertDialog(alignment: Alignment.center, content: errorContent ?? content?.getFullContent(context)),
     );
   }
 
-  String _getWaitText(int days) {
+  static String _getWaitText(int days) {
     int lastDigit = days % 10;
     String numberSuffix = switch (lastDigit) {
       1 => '-et',
@@ -223,7 +221,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
             height: 80,
             width: 80,
             child: ElevatedButton(
-              onPressed: () => _showDoorDialog(widget.user, widget.doorContent),
+              onPressed: () => _showDoorDialog(widget.user, widget.doorNumber, widget.doorContent, context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: backgroundButtonColor,
                 overlayColor: const Color.fromARGB(255, 221, 185, 161),
@@ -234,7 +232,7 @@ class _AdventDoorState extends State<AdventDoor> with TickerProviderStateMixin {
               ),
               child: Center(
                 child: Text(
-                  widget.doorContent?.icon ?? noContentIcons[widget.doorNumber % noContentIcons.length],
+                  widget.doorContent?.taskID ?? noContentIcons[widget.doorNumber % noContentIcons.length],
                   style: const TextStyle(fontSize: 42),
                   textAlign: TextAlign.center,
                 ),

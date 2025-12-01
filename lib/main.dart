@@ -1,5 +1,6 @@
 import 'package:advent/advent_door.dart';
 import 'package:advent/door_content.dart';
+import 'package:advent/solution_manager.dart';
 import 'package:advent/util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,10 +47,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Advent Calendar',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
-          brightness: Brightness.light,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red, brightness: Brightness.light),
         useMaterial3: true,
       ),
       themeMode: ThemeMode.light,
@@ -80,6 +78,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     super.initState();
     _loadCurrentUser();
     _userInputController.addListener(_onUserInputChanged);
+    SolutionManager.loadSolutions(); // Load user solutions on app start
   }
 
   @override
@@ -179,10 +178,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
       if (currentUser == null) return;
       final prefs = await SharedPreferences.getInstance();
       final storageKey = _getStorageKey('opened_doors');
-      await prefs.setStringList(
-        storageKey,
-        openedDoors.map((e) => e.toString()).toList(),
-      );
+      await prefs.setStringList(storageKey, openedDoors.map((e) => e.toString()).toList());
     } catch (e) {
       // If SharedPreferences fails, just continue without saving
       debugPrint('Failed to save opened doors: $e');
@@ -221,11 +217,12 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
       });
       _saveOpenedDoors();
     }
-  }  
+  }
 
   @override
   Widget build(BuildContext context) {
     int currentDay = Util.getCurrentDayOfDec2025();
+    Map<String, String> userSolutions = SolutionManager.getAllUserSolutions();
 
     return Scaffold(
       body: Column(
@@ -247,28 +244,24 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                       mainAxisSpacing: 26,
                       childAspectRatio: 1,
                     ),
-                  itemCount: 24,
-                  itemBuilder: (context, index) {
-                    final doorNumber = shuffledDoors[index];
-                    final doorContent = DoorContentManager.getContent(doorNumber, currentUser);
-                    final isOpenable = canDoorBeOpenDoor(
-                      currentUser,
-                      doorNumber,
-                      currentDay,
-                    );
-                    final isOpened = openedDoors.contains(doorNumber);
+                    itemCount: 24,
+                    itemBuilder: (context, index) {
+                      final doorNumber = shuffledDoors[index];
+                      final doorContent = DoorContent.findContent(doorNumber, currentUser, userSolutions);
+                      final isOpenable = canDoorBeOpenDoor(currentUser, doorNumber, currentDay);
+                      final isOpened = openedDoors.contains(doorNumber);
 
-                    return AdventDoor(
-                      key: ValueKey('door_$doorNumber'),
-                      doorNumber: doorNumber,
-                      user: currentUser,
-                      doorContent: doorContent, 
-                      isOpenable: isOpenable,
-                      isOpened: isOpened,
-                      onTap: () => toggleDoor(doorNumber),
-                    );
-                  },
-                ),
+                      return DoorWidget(
+                        key: ValueKey('door_$doorNumber'),
+                        doorNumber: doorNumber,
+                        user: currentUser,
+                        doorContent: doorContent,
+                        isOpenable: isOpenable,
+                        isOpened: isOpened,
+                        onTap: () => toggleDoor(doorNumber),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -276,9 +269,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
           // User identification input at the bottom
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            ),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest),
             child: Row(
               children: [
                 Expanded(
@@ -287,35 +278,21 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       hintText: 'Jelszó?',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
                 ),
                 if (currentUser != null) ...[
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                     child: Row(
                       children: [
                         Text(
                           currentUser!.displayName,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 151, 62, 62),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Color.fromARGB(255, 151, 62, 62), fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),

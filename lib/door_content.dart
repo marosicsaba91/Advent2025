@@ -1,28 +1,58 @@
+import 'package:advent/advent_2025_door_map.dart';
+import 'package:advent/advent_2025_task_definitions.dart';
+import 'package:advent/clue_elements.dart';
+import 'package:advent/solution_manager.dart';
 import 'package:advent/task.dart';
+import 'package:advent/clue_solution.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 
 class DoorContent {
   final Widget child;
-  final String icon;
-  final String? passKey;
-  final List<String>? locks;
+  final String taskID; // icon
+  final String? userSolution;
+  final List<String> correctSolutions;
+  final int locks;
+  final int openLocks;
+  final bool solvable;
 
-  const DoorContent({required this.icon, required this.child, this.passKey, this.locks});
+  DoorContent({
+    required this.taskID,
+    required this.child,
+    required this.locks,
+    required this.openLocks,
+    required this.userSolution,
+    required this.correctSolutions,
+    required this.solvable,
+  });
 
   String? get bottomText {
-    if (locks != null) {
-      return "🔒" * locks!.length;
+    if (locks > 0) {
+      return "🔒" * (locks - openLocks) + "🔓" * openLocks;
     }
     return null;
   }
-}
 
-class DoorContentManager {
-  static DoorContent? getContent(int day, User? user) {
-    final taskAndClue = dayUserToTaskClueTable(day, user);
+  Widget getFullContent(BuildContext context) {
+    if (!solvable) {
+      return child;
+    }
+
+    return ClueColumn([
+      child,
+      ClueSolution(
+        taskID: taskID,
+        userInput: SolutionManager.getUserSolution(taskID),
+        correctSolutions: correctSolutions,
+      ),
+    ]);
+  }
+
+  static DoorContent? findContent(int day, User? user, Map<String, String> userSolutions) {
+    if (user == null) return null;
+    final taskAndClue = DoorMap.dayUserToTaskClueTable(day, user);
     final String taskID = taskAndClue.$1;
-    Task? task = TaskManager.getTask(taskID);
+    Task? task = TaskDefinitions.getTask(taskID);
     if (task == null) return null;
 
     final int clueNumber = taskAndClue.$2;
@@ -31,73 +61,30 @@ class DoorContentManager {
     bool isLastClue = (clueNumber == task.clues.length);
     bool isLastTask = (day == 24);
 
-    if (isLastClue && !isLastTask) {
-      String passKey = task.keyToSolve;
-      return DoorContent(icon: task.icon, child: task.clues[clueNumber - 1], passKey: passKey);
-    }
+    bool solvable = (isLastClue && !isLastTask && task.correctSolutions.isNotEmpty);
 
-    List<String>? locks;
+    int openLocks = 0, locks = 0;
     if (isLastTask) {
-      locks = switch (user) {
-        User.zsuzsiKicsim => ["TODOTODO", "TODOTODO", "TODOTODO"],
-        User.kataBalazs => ["🌏", "TODOTODO", "TODOTODO"],
-        User.mariMatyi => ["🔔", "TODOTODO", "TODOTODO"],
-        User.dorkaMate => ["TODOTODO", "TODOTODO", "TODOTODO"],
-        null => throw UnimplementedError(),
-      };
+      List<String> lockerTask = DoorMap.getLockerTask(user);
+
+      for (var lockerTaskID in lockerTask) {
+        locks += 1;
+        Task lockerTask = TaskDefinitions.getTask(lockerTaskID)!;
+        if (userSolutions.containsKey(lockerTaskID) &&
+            lockerTask.correctSolutions.any((n) => n.toLowerCase() == userSolutions[lockerTaskID]?.toLowerCase())) {
+          openLocks += 1;
+        }
+      }
     }
 
-    return DoorContent(icon: task.icon, child: task.clues[clueNumber - 1], locks: locks);
+    return DoorContent(
+      taskID: task.icon,
+      child: task.clues[clueNumber - 1],
+      locks: locks,
+      openLocks: openLocks,
+      userSolution: userSolutions[taskID],
+      correctSolutions: task.correctSolutions,
+      solvable: solvable,
+    );
   }
-
-  static (String, int) dayUserToTaskClueTable(int day, User? user) => switch ((day, user)) {
-    (1, User.zsuzsiKicsim) => ("🌏", 1),
-    (1, User.kataBalazs) => ("🔔", 1),
-    (1, User.mariMatyi) => ("🔔", 2),
-    (1, User.dorkaMate) => ("⭐", 1),
-
-    (2, User.zsuzsiKicsim) => ("🔔", 3),
-    (2, User.kataBalazs) => ("⭐", 2),
-    (2, User.mariMatyi) => ("🌏", 2),
-    (2, User.dorkaMate) => ("🍞", 1),
-
-    (3, User.zsuzsiKicsim) => ("⭐", 3),
-    (3, User.kataBalazs) => ("🌏", 3),
-    (3, User.mariMatyi) => ("🔔", 4),
-    (3, User.dorkaMate) => ("🔔", 5),
-
-    (4, User.zsuzsiKicsim) => ("🔔", 6),
-    (4, User.kataBalazs) => ("⭐", 4),
-    (4, User.mariMatyi) => ("🍞", 2),
-    (4, User.dorkaMate) => ("🌏", 4),
-
-    (5, User.zsuzsiKicsim) => ("🌏", 5),
-    (5, User.kataBalazs) => ("🌏", 6), // 🔑
-    (5, User.mariMatyi) => ("⭐", 5),
-    (5, User.dorkaMate) => ("🔔", 7),
-
-    (6, User.zsuzsiKicsim) => ("🍞", 3),
-    (6, User.kataBalazs) => ("🔔", 8),
-    (6, User.mariMatyi) => ("🔔", 9), // 🔑
-    (6, User.dorkaMate) => ("⭐", 6),
-
-    (7, User.zsuzsiKicsim) => ("⭐", 7),
-    (7, User.kataBalazs) => ("⭐", 8),
-    (7, User.mariMatyi) => ("🍞", 4),
-    (7, User.dorkaMate) => ("🎅", 1),
-
-    (8, User.zsuzsiKicsim) => ("🎅", 2),
-    (8, User.kataBalazs) => ("🍞", 5),
-    (8, User.mariMatyi) => ("🎅", 3),
-    (8, User.dorkaMate) => ("🍞", 6),
-
-    (9, User.zsuzsiKicsim) => ("⭐", 9),
-
-    (24, User.zsuzsiKicsim) => ("🎁", 1),
-    (24, User.kataBalazs) => ("🎁", 2),
-    (24, User.mariMatyi) => ("🎁", 3),
-    (24, User.dorkaMate) => ("🎁", 4),
-
-    _ => ("🌏", 0),
-  };
 }
