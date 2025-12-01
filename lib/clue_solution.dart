@@ -1,5 +1,5 @@
 import 'package:advent/clue_elements.dart';
-import 'package:advent/task_solution_manager.dart';
+import 'package:advent/solution_manager.dart';
 import 'package:flutter/material.dart';
 
 class ClueSolution extends StatefulWidget {

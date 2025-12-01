@@ -10,7 +10,7 @@ class DoorWidget extends StatefulWidget {
   final DoorContent? doorContent;
   final bool isOpenable;
   final bool isOpened;
-  final VoidCallback onTap;
+  final VoidCallback toogleDoorOpened;
 
   const DoorWidget({
     super.key,
@@ -19,7 +19,7 @@ class DoorWidget extends StatefulWidget {
     required this.doorContent,
     required this.isOpenable,
     required this.isOpened,
-    required this.onTap,
+    required this.toogleDoorOpened,
   });
 
   @override
@@ -110,63 +110,66 @@ class _DoorWidgetState extends State<DoorWidget> with TickerProviderStateMixin {
   }
 
   void _handleTap() {
-    widget.onTap();
+    if (widget.isOpened) {
+      widget.toogleDoorOpened();
+      return;
+    }
 
-    if (!widget.isOpenable && !widget.isOpened) {
+    int currentDay = Util.getCurrentDayOfDec2025();
+    String? errorText = Util.anyReasonNotToOpen(widget.user, widget.doorContent, widget.doorNumber, currentDay);
+
+    if (errorText != null) {
       {
         _shakeAnimationController.forward(from: 0);
-
-        User? user = widget.user;
-        int currentDay = Util.getCurrentDayOfDec2025();
-
-        if (user == null || currentDay < widget.doorNumber) {
-          _showDoorDialog(user, widget.doorNumber, widget.doorContent, context);
-        }
+        _showWarningDialog(errorText, context);
       }
+    } else {
+      widget.toogleDoorOpened();
     }
   }
 
-  List<String> noContentIcons = ['😕', '🤔', '🫤', '😐', '😑', '🤐', '😔', '😞', '😞', '☹️', '😒', '🙄', '😬', '😳'];
+  static List<String> noContentIcons = [
+    '😕',
+    '🤔',
+    '🫤',
+    '😐',
+    '😑',
+    '🤐',
+    '😔',
+    '😞',
+    '😞',
+    '☹️',
+    '😒',
+    '🙄',
+    '😬',
+    '😳',
+  ];
 
-  static void _showDoorDialog(User? user, int doorNumber, DoorContent? content, BuildContext context) {
-    int currentDay = Util.getCurrentDayOfDec2025();
-
-    String? errorText = user == null
-        ? 'Nincs jelszó, nincs csoki!\n🔑 👉 🍫'
-        : currentDay < doorNumber
-        ? _getWaitText(doorNumber - currentDay)
-        : content == null
-        ? 'Hmmm... 🤔 Valami nincs rendben!\nEgy nyom itt hiányzik.\nErről szólj Csaninak!'
-        : null;
-
-    Widget? errorContent = errorText == null
-        ? null
-        : Text(errorText, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20));
-
+  static void _showWarningDialog(String errorText, BuildContext context) {
+    Widget? errorContent = Text(errorText, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20));
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(alignment: Alignment.center, content: errorContent ?? content?.getFullContent(context)),
+      builder: (context) => AlertDialog(alignment: Alignment.center, content: errorContent),
     );
   }
 
-  static String _getWaitText(int days) {
-    int lastDigit = days % 10;
-    String numberSuffix = switch (lastDigit) {
-      1 => '-et',
-      2 => '-t',
-      3 => '-at',
-      4 => '-et',
-      5 => '-öt',
-      6 => '-ot',
-      7 => '-et',
-      8 => '-at',
-      9 => '-et',
-      _ => '-t',
-    };
-    // As many sleepy faces as days
-    String sleepyFaces = '😴' * days;
+  static void _showDoorDialog(User? user, int doorNumber, DoorContent? content, BuildContext context) {
+    int currentDay = Util.getCurrentDayOfDec2025();
+    String? errorText = Util.anyReasonNotToOpen(user, content, doorNumber, currentDay);
 
-    return 'Még $days$numberSuffix kell aludni!\n$sleepyFaces';
+    if (errorText != null) {
+      _showWarningDialog(errorText, context);
+      return;
+    }
+    else if (content == null) {
+      _showWarningDialog('Hmmm... 🤔 Valami nincs rendben!\nEgy nyom itt hiányzik.\nErről szólj Csaninak!', context);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(alignment: Alignment.center, content: content.getFullContent(context)),
+    );
   }
 
   @override

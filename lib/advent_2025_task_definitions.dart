@@ -4,9 +4,8 @@ import 'package:advent/task.dart';
 import 'package:flutter/material.dart';
 
 class TaskDefinitions {
-    
   static List<String> allTaskIDs = ["🌏", "⭐", "🔔", "🍞", "🎀", "🕯️", "🎅", "🎺", "🎄", "❄️", "🍪", "⛄", "🎁"];
-  
+
   static Task? getTask(String taskId) => switch (taskId) {
     "🌏" => Task(
       // Task 1:  Zászlók és fővárosok
@@ -73,8 +72,10 @@ class TaskDefinitions {
         ClueImage("Supper.png"),
         ClueImage("Apostols 3.png"),
         ClueImage("Leonardo.png"),
-        ClueImage("Apostols 4.png"),
-        ClueText("A kiszámolt megoldást alább betűzd, de ne számokat használj hanem betűzd!"),
+        ClueColumn([
+          ClueImage("Apostols 4.png"),
+          ClueText("A kiszámolt megoldást alább betűzd, de ne számokat használj hanem betűzd!"),
+        ]),
       ],
       correctSolutions: ["Huszonhét"],
     ),
@@ -110,7 +111,7 @@ class TaskDefinitions {
         "Első Vilmos",
         "ElsőVilmos",
         "I. Vilmos",
-        "I.Vilmos", 
+        "I.Vilmos",
         "Fattyú Vilmos",
         "FattyúVilmos",
         "William the Conqueror",
@@ -207,6 +208,4 @@ class TaskDefinitions {
 
     _ => null,
   };
-
-
 }

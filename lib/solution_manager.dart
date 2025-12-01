@@ -4,16 +4,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SolutionManager {
   static const String key = 'solution_';
   static Map<String, String> _userSolutions = {};
+  
+  // Notifier to trigger rebuilds when solutions change
+  static final ValueNotifier<int> solutionsChangedNotifier = ValueNotifier<int>(0);
 
   // Load solutions from storage
   static Future<void> loadSolutions() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final keys = prefs.getKeys().where((key) => key.startsWith(key)).toList();
+      final allKeys = prefs.getKeys().where((k) => k.startsWith(key)).toList();
       _userSolutions.clear();
-      for (final key in keys) {
-        final taskId = key.substring(key.length);
-        final solution = prefs.getString(key) ?? '';
+      for (final storageKey in allKeys) {
+        final taskId = storageKey.substring(key.length);
+        final solution = prefs.getString(storageKey) ?? '';
         _userSolutions[taskId] = solution;
       }
     } catch (e) {
@@ -41,6 +44,8 @@ class SolutionManager {
   static Future<void> setUserSolution(String taskId, String solution) async {
     _userSolutions[taskId] = solution;
     await _saveSolution(taskId, solution);
+    // Notify listeners that solutions have changed
+    solutionsChangedNotifier.value++;
   }
 
   // Get all solutions

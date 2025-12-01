@@ -1,4 +1,4 @@
-import 'package:advent/advent_door.dart';
+import 'package:advent/door_widger.dart';
 import 'package:advent/door_content.dart';
 import 'package:advent/solution_manager.dart';
 import 'package:advent/util.dart';
@@ -79,12 +79,24 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     _loadCurrentUser();
     _userInputController.addListener(_onUserInputChanged);
     SolutionManager.loadSolutions(); // Load user solutions on app start
+
+    // Listen to solution changes and rebuild
+    SolutionManager.solutionsChangedNotifier.addListener(_onSolutionsChanged);
   }
 
   @override
   void dispose() {
     _userInputController.dispose();
+    SolutionManager.solutionsChangedNotifier.removeListener(_onSolutionsChanged);
     super.dispose();
+  }
+
+  void _onSolutionsChanged() {
+    if (mounted) {
+      setState(() {
+        // Trigger rebuild when solutions change
+      });
+    }
   }
 
   (User?, bool) _identifyUser(String input) {
@@ -198,30 +210,20 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
     return doors;
   }
 
-  static bool canDoorBeOpenDoor(User? user, int doorNumber, int currentDay) {
-    if (user == null) {
-      return false;
-    }
-    return doorNumber <= currentDay;
-  }
-
   void toggleDoor(int doorNumber) {
     bool isOpen = openedDoors.contains(doorNumber);
-    if (isOpen || canDoorBeOpenDoor(currentUser, doorNumber, Util.getCurrentDayOfDec2025())) {
-      setState(() {
-        if (isOpen) {
-          openedDoors.remove(doorNumber);
-        } else {
-          openedDoors.add(doorNumber);
-        }
-      });
-      _saveOpenedDoors();
-    }
+    setState(() {
+      if (isOpen) {
+        openedDoors.remove(doorNumber);
+      } else {
+        openedDoors.add(doorNumber);
+      }
+    });
+    _saveOpenedDoors();
   }
 
   @override
   Widget build(BuildContext context) {
-    int currentDay = Util.getCurrentDayOfDec2025();
     Map<String, String> userSolutions = SolutionManager.getAllUserSolutions();
 
     return Scaffold(
@@ -248,8 +250,13 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                     itemBuilder: (context, index) {
                       final doorNumber = shuffledDoors[index];
                       final doorContent = DoorContent.findContent(doorNumber, currentUser, userSolutions);
-                      final isOpenable = canDoorBeOpenDoor(currentUser, doorNumber, currentDay);
                       final isOpened = openedDoors.contains(doorNumber);
+                      final isOpenable = Util.isDoorOpenable(
+                          currentUser,
+                          doorContent,
+                          doorNumber,
+                          Util.getCurrentDayOfDec2025(),
+                        );
 
                       return DoorWidget(
                         key: ValueKey('door_$doorNumber'),
@@ -258,7 +265,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                         doorContent: doorContent,
                         isOpenable: isOpenable,
                         isOpened: isOpened,
-                        onTap: () => toggleDoor(doorNumber),
+                        toogleDoorOpened: () => toggleDoor(doorNumber),
                       );
                     },
                   ),

@@ -12,23 +12,23 @@ class DoorContent {
   final String taskID; // icon
   final String? userSolution;
   final List<String> correctSolutions;
-  final int locks;
-  final int openLocks;
+  final int lockedTasks;
+  final List<String> unlockedTask;
   final bool solvable;
 
   DoorContent({
     required this.taskID,
     required this.child,
-    required this.locks,
-    required this.openLocks,
+    required this.lockedTasks,
+    required this.unlockedTask,
     required this.userSolution,
     required this.correctSolutions,
     required this.solvable,
   });
 
   String? get bottomText {
-    if (locks > 0) {
-      return "🔒" * (locks - openLocks) + "🔓" * openLocks;
+    if (lockedTasks > 0) {
+      return "🔒" * (lockedTasks) + unlockedTask.join();
     }
     return null;
   }
@@ -63,16 +63,18 @@ class DoorContent {
 
     bool solvable = (isLastClue && !isLastTask && task.correctSolutions.isNotEmpty);
 
-    int openLocks = 0, locks = 0;
+    List<String> unlockedTask = [];
+    int lockedTasks = 0;
     if (isLastTask) {
       List<String> lockerTask = DoorMap.getLockerTask(user);
 
       for (var lockerTaskID in lockerTask) {
-        locks += 1;
         Task lockerTask = TaskDefinitions.getTask(lockerTaskID)!;
         if (userSolutions.containsKey(lockerTaskID) &&
             lockerTask.correctSolutions.any((n) => n.toLowerCase() == userSolutions[lockerTaskID]?.toLowerCase())) {
-          openLocks += 1;
+          unlockedTask.add(lockerTaskID);
+        } else {
+          lockedTasks++;
         }
       }
     }
@@ -80,8 +82,8 @@ class DoorContent {
     return DoorContent(
       taskID: task.icon,
       child: task.clues[clueNumber - 1],
-      locks: locks,
-      openLocks: openLocks,
+      lockedTasks: lockedTasks,
+      unlockedTask: unlockedTask,
       userSolution: userSolutions[taskID],
       correctSolutions: task.correctSolutions,
       solvable: solvable,
