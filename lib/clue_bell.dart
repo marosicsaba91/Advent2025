@@ -1,12 +1,8 @@
 
 import 'dart:math' as math;
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:flutter/material.dart';
-
-
-
-
 
 
 class ClueBell extends StatefulWidget {
@@ -28,13 +24,10 @@ class _ClueBellState extends State<ClueBell> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     _rotationController = AnimationController(duration: const Duration(seconds: 5), vsync: this);
-
-    // Configure audio player for web
-    _audioPlayer.setReleaseMode(ReleaseMode.stop);
     
     // Set up completion listener once
-    _audioPlayer.onPlayerComplete.listen((_) {
-      if (mounted) {
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed && mounted) {
         setState(() => _isPlaying = false);
         _rotationController.reset();
       }
@@ -48,8 +41,8 @@ class _ClueBellState extends State<ClueBell> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    _rotationController.dispose();
     _audioPlayer.dispose();
+    _rotationController.dispose();
     super.dispose();
   }
 
@@ -60,7 +53,10 @@ class _ClueBellState extends State<ClueBell> with SingleTickerProviderStateMixin
         _rotationController.stop();
       }
 
-      await _audioPlayer.play(AssetSource(widget.soundPath));
+      // Load and play the audio file
+      await _audioPlayer.setAsset('assets/${widget.soundPath}');
+      _audioPlayer.play();
+      
       setState(() => _isPlaying = true);
       _rotationController.forward(from: 0);
     } catch (e) {

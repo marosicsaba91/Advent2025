@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:advent/util.dart' show Util;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ClueColumn extends StatelessWidget {
   const ClueColumn(this.items, {super.key});
@@ -55,21 +58,53 @@ class ClueImage extends StatelessWidget {
   }
 }
 
-
-
 class ClueTimeLock extends StatelessWidget {
-  const ClueTimeLock(this.imagePath, this.cuncoverableText, this.hour, this.minute, {super.key});
+  const ClueTimeLock(this.imagePath, this.cuncoverableText, this.hour, this.minute, {super.key, this.color});
 
   final String imagePath;
   final String cuncoverableText;
   final int hour;
   final int minute;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    int totalMinutesNow = now.hour * 60 + now.minute;
+    int totalMinutesLock = hour * 60 + minute;
+    int difference = (totalMinutesLock - totalMinutesNow).abs();
+    difference = min(difference, 1440 - difference);
+
     String imagePathLocal = "assets/$imagePath";
     Widget image = SizedBox(width: 400, height: 400, child: Image.asset(imagePathLocal));
-    // TODO
-    return image;
+    if (difference <= 8) {
+      return SizedBox(
+        width: 400,
+        height: 400,
+        child: Stack(
+          children: [
+            image,
+            Center(
+              child: Text(
+                cuncoverableText,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cinzel(
+                  fontSize: 300,
+                  fontWeight: FontWeight.bold,
+                  color: color?.withAlpha(150) ?? const Color.fromARGB(150, 0, 0, 0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ClueColumn(  
+      [
+        image,
+        ClueText("Rossz időzítés!"),
+      ],
+    );
   }
 }

@@ -91,6 +91,8 @@ class DoorContentManager {
     (8, User.mariMatyi) => ("🎅", 3),
     (8, User.dorkaMate) => ("🍞", 6),
 
+    (9, User.zsuzsiKicsim) => ("⭐", 9),
+
     (24, User.zsuzsiKicsim) => ("🎁", 1),
     (24, User.kataBalazs) => ("🎁", 2),
     (24, User.mariMatyi) => ("🎁", 3),
