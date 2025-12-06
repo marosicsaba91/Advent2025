@@ -1,10 +1,11 @@
 import 'package:advent/clue_bell.dart';
 import 'package:advent/clue_elements.dart';
 import 'package:advent/task.dart';
+import 'package:advent/time.dart';
 import 'package:flutter/material.dart';
 
 class TaskDefinitions {
-  static List<String> allTaskIDs = ["🌏", "⭐", "🔔", "🍞", "🎀", "🕯️", "🎅", "🎺", "🎄", "❄️", "🍪", "⛄", "🎁"];
+  static List<String> allTaskIDs = ["🌏", "⭐", "🔔", "🍞", "🎀", "📜", "⛄", "📖", "❄️", "🕯️", "🐑", "🌲", "🎁"];
 
   static Task? getTask(String taskId) => switch (taskId) {
     "🌏" => Task(
@@ -20,7 +21,7 @@ class TaskDefinitions {
             "Nem egyszerű. Kell hozzá némi ész,\n"
             "hogy a részekből legyen négy egész.\n"
             "A fővárosnál jelölj! Nem máshol, de pont ott!\n"
-            "Emlékez, van úgy hogy …",
+            "Emlékezz, van úgy hogy …",
           ),
           ClueImage("Indiana.png"),
         ]),
@@ -34,16 +35,16 @@ class TaskDefinitions {
       icon: taskId,
       clues: [
         ClueImage("StarClue-ThreeWiseMan.png"),
-        ClueTimeLock("Star-Sirius.png", "U", 12, 30, color: Color.fromARGB(255, 255, 162, 23)),
-        ClueTimeLock("Star-Mars.png", "I", 12, 30, color: Color.fromARGB(255, 48, 23, 16)),
-        ClueTimeLock("Star-Pluto.png", "E", 12, 20, color: Color.fromARGB(255, 71, 109, 153)),
-        ClueTimeLock("Star-Saturn.png", "R", 12, 20, color: Color.fromARGB(255, 117, 30, 30)),
-        ClueTimeLock("Star-AlphaCentauri.png", "C", 12, 20),
-        ClueTimeLock("Star-Alnilam.png", "L", 12, 15, color: Color.fromARGB(255, 62, 93, 107)),
-        ClueTimeLock("Star-Andromeda.png", "F", 12, 20, color: Color.fromARGB(255, 62, 63, 95)),
-        ClueText("Mit szemléltek ha leszáll az est? Mi állt össze, mely égitest?"),
+        ClueTimeLock("Star-Sirius.png", "U", Time(06, 45, 09), color: Color.fromARGB(255, 255, 162, 23)),
+        ClueTimeLock("Star-Mars.png", "I", Time(17, 15, 36), color: Color.fromARGB(255, 48, 23, 16)),
+        ClueTimeLock("Star-Pluto.png", "E", Time(20, 20, 21), color: Color.fromARGB(255, 71, 109, 153)),
+        ClueTimeLock("Star-Saturn.png", "R", Time(23, 46, 00), color: Color.fromARGB(255, 117, 30, 30)),
+        ClueTimeLock("Star-AlphaCentauri.png", "C", Time(14, 39, 36)),
+        ClueTimeLock("Star-Alnilam.png", "L", Time(05, 36, 13), color: Color.fromARGB(255, 62, 93, 107)),
+        ClueTimeLock("Star-Andromeda.png", "F", Time(00, 42, 44), color: Color.fromARGB(255, 62, 63, 95)),
+        ClueText("Mit szemléltek, ha leszáll az éj?\n A feladványban ez a rejtély."), // !!!
       ],
-      correctSolutions: ["Vénusz", "Venus", "Esthajnal", "Esthajnalcsillag"],
+      correctSolutions: ["Vénusz", "Venus"],
     ),
 
     // Task 3:  Harangok
@@ -58,7 +59,7 @@ class TaskDefinitions {
         ClueBell("Bell3.png", "Bell 3-D.mp3"),
         ClueBell("Bell5.png", "Bell 5-A.mp3"),
         ClueText("5 - 6 - 5 - 6 - 3 - 5 - 7 - 3 - 8 - 6 - 5 - 9 - 6 - 4"),
-        ClueText("Ki a szerző? Ki lehetne más? Kicsit úgy fest, mint a Mikulás."),
+        ClueText("Ki lehet az, ki lehet ő,\na méltán híres zeneszerző?"),
       ],
       correctSolutions: ["John Williams", "JohnWilliams"],
     ),
@@ -74,7 +75,7 @@ class TaskDefinitions {
         ClueImage("Leonardo.png"),
         ClueColumn([
           ClueImage("Apostols 4.png"),
-          ClueText("A kiszámolt megoldást alább betűzd, de ne számokat használj hanem betűzd!"),
+          ClueText("A kiszámolt megoldást alább betűzd,\nde ne számokat használj hanem betűzd!"),
         ]),
       ],
       correctSolutions: ["Huszonhét"],
@@ -82,19 +83,25 @@ class TaskDefinitions {
 
     // ---------------------------------------------------------------------------------------
 
-    // Task 5:  Képek a városból
+    // Task 5:  Képek a városból      // !!! KETTŐ HIÁNYZIK !!!
     "🎀" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("CityA2.png"),
+        ClueImage("CityA1.png"),
+        ClueImage("CityB2.png"),
+        ClueImage("CityB1.png"),
+        ClueImage("CityC2.png"),
+        ClueImage("CityC1.png"),
+        ClueImage("CityD2.png"), // MISSZING IMAGE
+        ClueImage("CityD1.png"), // MISSZING IMAGE
+        ClueText("Ha megvan a karácsonyfa minden dísze,\ntaláld ki mi köti őket össze?"),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["Vörös"],
     ),
 
     // Task 6:  Évszám matek
-    "🕯️" => Task(
+    "📜" => Task(
       icon: taskId,
       clues: [
         ClueImage("HistorySecondTemple.png"),
@@ -103,7 +110,7 @@ class TaskDefinitions {
         ClueImage("History1984.png"),
         ClueImage("HistoryCharlamene.png"),
         ClueText("2A - B - 3C + D + 3E = ???"),
-        ClueText("Zengnek a harangok, készül a lakoma. Kinek van ma a legjobb karácsonya?"),
+        ClueText("Zengnek a harangok, készül a lakoma.\nKinek van ma a legjobb karácsonya?"),
       ],
       correctSolutions: [
         "Hódító Vilmos",
@@ -125,41 +132,41 @@ class TaskDefinitions {
     ),
 
     // Task 7:  Karácsonyi filmes halmazelmélet
-    "🎅" => Task(
+    "⛄" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("Snowman.png"),
+        ClueImage("Snowman 1.png"),
+        ClueImage("Snowman 2.png"),
+        ClueImage("Snowman 3.png"),
+        ClueImage("Snowman 4.png"),
+        ClueImage("Snowman 5.png"),
+        ClueImage("Snowman 6.png"),
+        ClueImage("Snowman 7.png"),
+        ClueImage("Snowman 8.png"),
+        ClueText("Találd ki, kit rejt a hóember fej és\nmár meg is van a megfejtés."),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["Timothy Spall", "TimothySpall"],
     ),
 
-    // Task 8:  Billentyűk a zongorán
-    "🎺" => Task(
+    // Task 8:  Irodalom
+    "📖" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("Literature0.png"),
+        ClueImage("Literature1.png"),
+        ClueImage("Literature2.png"),
+        ClueImage("Literature3.png"),
+        ClueImage("Literature4.png"),
+        ClueImage("Literature5.png"),
+        ClueText("Mindenki a fejét azon törje,\nhogy ki a novella főszerepője!"),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["János mester", "Jánosmester"],
     ),
 
     // ---------------------------------------------------------------------------------------
 
-    // Task 9:  Logikai karácsonyfa
-    "🎄" => Task(
-      icon: taskId,
-      clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-      ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
-    ),
-
-    // Task 10:  Karácsonyi színező
+    // Task 9:  Karácsonyi színező      TODO
     "❄️" => Task(
       icon: taskId,
       clues: [
@@ -170,8 +177,23 @@ class TaskDefinitions {
       correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
     ),
 
-    // Task 11:  Karácsonyi süti: Vegyjelek
-    "🍪" => Task(
+    // Task 10: Twelve days of math-mass
+    "🕯️" => Task(
+      icon: taskId,
+      clues: [
+        ClueImage("Math1.png"),
+        ClueImage("Math5.png"),
+        ClueImage("Math3.png"),
+        ClueImage("Math2.png"),
+        ClueImage("Math4.png"),
+        ClueImage("Math0.png"),
+        ClueText("Az eredmény vajon ki lehet? Írd be azt, hogy hol született!"),
+      ],
+      correctSolutions: ["Patara"],
+    ),
+
+    // Task 11:   Karácsonyi Kriptográfia        TODO
+    "🐑" => Task(
       icon: taskId,
       clues: [
         ClueText("TODO - TODO - TODO - TODO - TODO"),
@@ -181,20 +203,27 @@ class TaskDefinitions {
       correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
     ),
 
-    // Task 12:  Városliget térkép és koordinátáták
-    "⛄" => Task(
+    // Task 12:  Városliget térkép és koordináták
+    "🌲" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("StatuesGabriel.png"),
+        ClueImage("StatuesX.png"),
+        ClueImage("StatuesY.png"),
+        ClueText("Beszédes szobor 1:\n(0,443; 0,610)"),
+        ClueText("Beszédes szobor 2:\n(0,743; 0,522)"),
+        ClueText("Beszédes szobor 3:\n(0,768; 0,912)"),
+        ClueText("Beszédes szobor 4:\n(1,319; 1,017)"),
+        ClueText(
+          " Nincs más dolgod, mindössze \n születési éveiket add össze \n azoknak a személyeknek,\n kikről a szobrok beszélnek. ",
+        ),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["7473", "7 473", "7.473"],
     ),
 
     // ---------------------------------------------------------------------------------------
 
-    // Cryptex Task
+    // Cryptex Task       TODO
     "🎁" => Task(
       icon: taskId,
       clues: [

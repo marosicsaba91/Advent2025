@@ -4,10 +4,10 @@ class DoorMap
 {
 
   static List<String> getLockerTask(User user) => switch (user) {
-    User.zsuzsiKicsim => ["⭐", "🕯️", "❄️"],
-    User.kataBalazs => ["🌏", "🎀", "🍪"],
-    User.mariMatyi => ["🔔", "🎅", "⛄"],
-    User.dorkaMate => ["🍞", "🎺", "🎄"],
+    User.zsuzsiKicsim => ["⭐", "⛄", "🌲"],
+    User.kataBalazs => ["🌏", "🎀", "🐑"],
+    User.mariMatyi => ["🔔", "📜", "🕯️"],
+    User.dorkaMate => ["🍞", "📖", "❄️"],
   };
 
   static (String, int) dayUserToTaskClueTable(int day, User? user) => switch ((day, user)) {
@@ -41,17 +41,26 @@ class DoorMap
     (6, User.mariMatyi) => ("🔔", 9), // 🔑
     (6, User.dorkaMate) => ("⭐", 6),
 
+
+
     (7, User.zsuzsiKicsim) => ("⭐", 7),
     (7, User.kataBalazs) => ("⭐", 8),
     (7, User.mariMatyi) => ("🍞", 4),
-    (7, User.dorkaMate) => ("🎅", 1),
-
-    (8, User.zsuzsiKicsim) => ("🎅", 2),
+    (7, User.dorkaMate) => ("⛄", 1),
+    
+    (8, User.zsuzsiKicsim) => ("⭐", 9), // 🔑
     (8, User.kataBalazs) => ("🍞", 5),
-    (8, User.mariMatyi) => ("🎅", 3),
-    (8, User.dorkaMate) => ("🍞", 6),
+    (8, User.mariMatyi) => ("⛄", 2),
+    (8, User.dorkaMate) => ("🎀", 1),
 
-    (9, User.zsuzsiKicsim) => ("⭐", 9),
+    (9, User.zsuzsiKicsim) => ("⛄", 3),
+    (9, User.kataBalazs) => ("🎀", 2),
+    (9, User.mariMatyi) => ("📖", 1),
+    (9, User.dorkaMate) => ("🍞", 6),  //🔑
+
+     ///////// ------------
+
+
 
     (24, User.zsuzsiKicsim) => ("🎁", 1),
     (24, User.kataBalazs) => ("🎁", 2),

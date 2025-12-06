@@ -1,5 +1,5 @@
-import 'dart:math';
-
+import 'package:advent/sidereal_time_widget.dart';
+import 'package:advent/time.dart';
 import 'package:advent/util.dart' show Util;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,17 +24,9 @@ class ClueRow extends StatelessWidget {
   final List<Widget> items;
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    spacing: 10,
-    children: items,
-  );
+  Widget build(BuildContext context) =>
+      Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, spacing: 10, children: items);
 }
-
-
-
-
 
 class ClueText extends StatelessWidget {
   const ClueText(this.message, {super.key});
@@ -77,26 +69,25 @@ class ClueImage extends StatelessWidget {
 }
 
 class ClueTimeLock extends StatelessWidget {
-  const ClueTimeLock(this.imagePath, this.cuncoverableText, this.hour, this.minute, {super.key, this.color});
+  const ClueTimeLock(this.imagePath, this.cuncoverableText, this.rightAscension, {super.key, this.color});
 
   final String imagePath;
   final String cuncoverableText;
-  final int hour;
-  final int minute;
+  final Time rightAscension;
+
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    int totalMinutesNow = now.hour * 60 + now.minute;
-    int totalMinutesLock = hour * 60 + minute;
-    int difference = (totalMinutesLock - totalMinutesNow).abs();
-    difference = min(difference, 1440 - difference);
+    Time localSiderealTime = Util.calculateLocalSiderealTime(Util.budapestLongitude, DateTime.now());
+
+    double differenceInMinutes = (localSiderealTime.differenceAbs(rightAscension)).inMinutes.toDouble();
 
     String imagePathLocal = "assets/$imagePath";
     Widget image = SizedBox(width: 400, height: 400, child: Image.asset(imagePathLocal));
-    if (difference <= 8) {
-      return SizedBox(
+
+    if (differenceInMinutes <= 10) {
+      image = SizedBox(
         width: 400,
         height: 400,
         child: Stack(
@@ -118,11 +109,6 @@ class ClueTimeLock extends StatelessWidget {
       );
     }
 
-    return ClueColumn(  
-      [
-        image,
-        ClueText("Rossz időzítés!"),
-      ],
-    );
+    return ClueColumn([SiderealTimeWidget(), image, ClueText("Rossz időzítés!")]);
   }
 }

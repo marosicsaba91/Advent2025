@@ -257,7 +257,7 @@ class _AdventCalendarPageState extends State<AdventCalendarPage> {
                           doorNumber,
                           Util.getCurrentDayOfDec2025(),
                         );
-
+      
                       return DoorWidget(
                         key: ValueKey('door_$doorNumber'),
                         doorNumber: doorNumber,
