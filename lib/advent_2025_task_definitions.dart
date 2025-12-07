@@ -51,7 +51,7 @@ class TaskDefinitions {
     "🔔" => Task(
       icon: taskId,
       clues: [
-        ClueBell("Bell6.png", "Bell 6-F#.mp3"),
+        ClueBell("Bell6.png", "Bell 6-F.mp3"),
         ClueBell("Bell4.png", "Bell 4-E.mp3"),
         ClueBell("Bell9.png", "Bell 9-D-.mp3"),
         ClueBell("Bell7.png", "Bell 7-B.mp3"),
@@ -166,15 +166,18 @@ class TaskDefinitions {
 
     // ---------------------------------------------------------------------------------------
 
-    // Task 9:  Karácsonyi színező      TODO
+    // Task 9:  Karácsonyi színező
     "❄️" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("Snowflake0.png"), 
+        ClueImage("Snowflake1.png"), 
+        ClueImage("Snowflake2.png"), 
+        ClueImage("Snowflake3.png"), 
+        ClueImage("Snowflake4.png"), 
+        ClueText("Találd ki a kifejezést!\nÍrd be a befejezést!"),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["Domini"],
     ),
 
     // Task 10: Twelve days of math-mass
@@ -187,20 +190,25 @@ class TaskDefinitions {
         ClueImage("Math2.png"),
         ClueImage("Math4.png"),
         ClueImage("Math0.png"),
-        ClueText("Az eredmény vajon ki lehet? Írd be azt, hogy hol született!"),
+        ClueText("A megoldás vajon ki lehet? Írd be azt, hogy hol született!"),
       ],
       correctSolutions: ["Patara"],
     ),
 
-    // Task 11:   Karácsonyi Kriptográfia        TODO
+    // Task 11:   Karácsonyi Kriptográfia
     "🐑" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("Crypto1.png"),
+        ClueImage("Crypto2.png"),
+        ClueImage("Crypto3.png"),
+        ClueImage("Crypto4.png"),
+        ClueImage("Crypto5.png"),
+        ClueImage("Crypto6.png"),
+        ClueImage("Crypto7.png"),
+        ClueText("Akinek a megoldás zenél,\naz érti meg, mi az uticél."),
       ],
-      correctSolutions: ["TODO - TODO - TODO - TOD", "TODO - TODO - TODO - TODO - TODO"],
+      correctSolutions: ["Betlehem"],
     ),
 
     // Task 12:  Városliget térkép és koordináták
@@ -227,10 +235,10 @@ class TaskDefinitions {
     "🎁" => Task(
       icon: taskId,
       clues: [
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
-        ClueText("TODO - TODO - TODO - TODO - TODO"),
+        ClueImage("Chabetto.png"),
+        ClueImage("Chabetto.png"),
+        ClueImage("Chabetto.png"),
+        ClueImage("Chabetto.png"),
       ],
       correctSolutions: [], // No solution needed
     ),
