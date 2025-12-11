@@ -96,7 +96,7 @@ class DoorMap
     (16, User.dorkaMate) => ("🐑", 1),
 
     (17, User.zsuzsiKicsim) => ("⛄", 10),   //🔑
-    (17, User.kataBalazs) => ("❄️", 9),
+    (17, User.kataBalazs) => ("❄️", 1),                   
     (17, User.mariMatyi) => ("🐑", 2),
     (17, User.dorkaMate) => ("📖", 7),   //🔑
 

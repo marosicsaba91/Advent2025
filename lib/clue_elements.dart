@@ -34,7 +34,7 @@ class ClueText extends StatelessWidget {
   final String message;
 
   @override
-  Widget build(BuildContext context) => Text(message, style: const TextStyle(fontSize: 18));
+  Widget build(BuildContext context) => Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18));
 }
 
 class ClueImage extends StatelessWidget {

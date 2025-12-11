@@ -27,7 +27,7 @@ class DoorContent {
   });
 
   String? get bottomText {
-    if (lockedTasks > 0) {
+    if (lockedTasks > 0 || unlockedTask.isNotEmpty) {
       return "🔒" * (lockedTasks) + unlockedTask.join();
     }
     return null;
