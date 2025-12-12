@@ -83,7 +83,7 @@ class TaskDefinitions {
 
     // ---------------------------------------------------------------------------------------
 
-    // Task 5:  Képek a városból      // !!! KETTŐ HIÁNYZIK !!!
+    // Task 5:  Képek a városból
     "🎀" => Task(
       icon: taskId,
       clues: [
@@ -93,8 +93,8 @@ class TaskDefinitions {
         ClueImage("CityB1.png"),
         ClueImage("CityC2.png"),
         ClueImage("CityC1.png"),
-        ClueImage("CityD2.png"), // MISSZING IMAGE
-        ClueImage("CityD1.png"), // MISSZING IMAGE
+        ClueImage("CityD2.png"),
+        ClueImage("CityD1.png"),
         ClueText("Ha megvan a karácsonyfa minden dísze,\ntaláld ki mi köti őket össze?"),
       ],
       correctSolutions: ["Vörös"],
@@ -107,7 +107,7 @@ class TaskDefinitions {
         ClueImage("HistorySecondTemple.png"),
         ClueImage("HistoryMohács.png"),
         ClueImage("HistoryMuhammad.png"),
-        ClueImage("History1984.png"),
+        ClueImage("History1948.png"),
         ClueImage("HistoryCharlamene.png"),
         ClueText("2A - B - 3C + D + 3E = ???"),
         ClueText("Zengnek a harangok, készül a lakoma.\nKinek van ma a legjobb karácsonya?"),
@@ -231,7 +231,7 @@ class TaskDefinitions {
 
     // ---------------------------------------------------------------------------------------
 
-    // Cryptex Task       TODO
+    // Cryptex Task
     "🎁" => Task(
       icon: taskId,
       clues: [
