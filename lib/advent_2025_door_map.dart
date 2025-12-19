@@ -110,18 +110,18 @@ class DoorMap
     (19, User.mariMatyi) => ("🕯️", 3),
     (19, User.dorkaMate) => ("🌲", 4), 
 
-    (20, User.zsuzsiKicsim) => ("❄️", 3),
-    (20, User.kataBalazs) => ("🕯️", 4),
+    (20, User.zsuzsiKicsim) => ("🌲", 6),
+    (20, User.kataBalazs) => ("🌲", 7),
     (20, User.mariMatyi) => ("🌲", 5),
     (20, User.dorkaMate) => ("🐑", 5),
 
-    (21, User.zsuzsiKicsim) => ("🌲", 6),
+    (21, User.zsuzsiKicsim) => ("❄️", 3),
     (21, User.kataBalazs) => ("❄️", 4),
     (21, User.mariMatyi) => ("🐑", 6),
-    (21, User.dorkaMate) => ("🕯️", 5), 
+    (21, User.dorkaMate) => ("🕯️", 4), 
 
-    (22, User.zsuzsiKicsim) => ("🕯️", 6),
-    (22, User.kataBalazs) => ("🌲", 7),
+    (22, User.zsuzsiKicsim) => ("🕯️", 5),
+    (22, User.kataBalazs) => ("🕯️", 6),
     (22, User.mariMatyi) => ("❄️", 5),
     (22, User.dorkaMate) => ("🐑", 7), 
 
